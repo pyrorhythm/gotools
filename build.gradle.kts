@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.pyro"
-version = "0.0.1-beta2"
+version = "0.0.1-beta3"
 
 repositories {
     mavenCentral()
