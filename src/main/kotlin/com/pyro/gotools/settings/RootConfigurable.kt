@@ -1,4 +1,4 @@
-package com.pyro.golangij
+package com.pyro.gotools.settings
 
 import com.intellij.openapi.options.Configurable
 import com.intellij.util.ui.FormBuilder
@@ -7,13 +7,13 @@ import javax.swing.JLabel
 import javax.swing.JLayer
 import javax.swing.JPanel
 
-class GolangIJRootConfigurable : Configurable {
+class RootConfigurable : Configurable {
 
-    override fun getDisplayName(): String = "GolangIJ"
+    override fun getDisplayName(): String = "GoTools"
 
     override fun createComponent(): JComponent = FormBuilder
         .createFormBuilder()
-        .addComponent(JLabel("Configure GolangIJ settings in the subcategories below."))
+        .addComponent(JLabel("Configure gotools settings in the subcategories below."))
         .addSeparator()
         .addComponent(JLabel("created with <3 by @pyrorhythm"))
         .addComponentFillVertically(JPanel(), 0)

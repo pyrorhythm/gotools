@@ -1,1 +1,1 @@
-rootProject.name = "golangIJ"
+rootProject.name = "gotools"

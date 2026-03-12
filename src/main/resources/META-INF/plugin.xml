@@ -1,11 +1,11 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
-    <id>com.pyro.golangij</id>
+    <id>com.pyro.gotools</id>
 
     <!-- Public plugin name should be written in Title Case.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
-    <name>GolangIJ</name>
+    <name>GoTools</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
     <vendor url="https://github.com/pyrorhythm">pyro</vendor>
@@ -23,22 +23,22 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <codeInsight.declarativeInlayProvider group="TYPES_GROUP"
-                                              implementationClass="com.pyro.golangij.GolangIJInlayHintsProvider"
+                                              implementationClass="com.pyro.gotools.inlayHints.Provider"
                                               isEnabledByDefault="true"
                                               language="go"
-                                              nameKey="golangij.provider.inlayHints" providerId="golangij.provider.inlayHints"/>
+                                              nameKey="gotools.provider.inlayHints" providerId="gotools.provider.inlayHints"/>
 
-        <applicationService serviceImplementation="com.pyro.golangij.GolangIJSettings"/>
+        <applicationService serviceImplementation="com.pyro.gotools.settings.inlayHints.Settings"/>
 
-        <applicationConfigurable parentId="editor"
-                                 instance="com.pyro.golangij.GolangIJRootConfigurable"
-                                 id="com.pyro.golangij.settings"
-                                 displayName="GolangIJ"
+        <applicationConfigurable parentId="tools"
+                                 instance="com.pyro.gotools.settings.RootConfigurable"
+                                 id="com.pyro.gotools.settings"
+                                 displayName="GoTools"
                                  nonDefaultProject="true"/>
 
-        <applicationConfigurable parentId="com.pyro.golangij.settings"
-                                 instance="com.pyro.golangij.GolangIJInlayHintsConfigurable"
-                                 id="com.pyro.golangij.settings.inlayHints"
+        <applicationConfigurable parentId="com.pyro.gotools.settings"
+                                 instance="com.pyro.gotools.settings.inlayHints.Configurable"
+                                 id="com.pyro.gotools.settings.inlayHints"
                                  displayName="Inlay Hints"/>
     </extensions>
 </idea-plugin>

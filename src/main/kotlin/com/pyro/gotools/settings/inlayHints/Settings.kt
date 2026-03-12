@@ -1,12 +1,12 @@
-package com.pyro.golangij
+package com.pyro.gotools.settings.inlayHints
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 
-@State(name = "GolangIJSettings", storages = [Storage("golangij.xml")])
-class GolangIJSettings : PersistentStateComponent<GolangIJSettings.State> {
+@State(name = "gotoolsHintsSettings", storages = [Storage("gotools.xml")])
+class Settings : PersistentStateComponent<Settings.State> {
 
     enum class FuncLiteralStyle(val symbol: String) {
         DEFAULT("func"),
@@ -16,8 +16,8 @@ class GolangIJSettings : PersistentStateComponent<GolangIJSettings.State> {
 
     enum class ChanStyle(val recvChan: String, val sendChan: String, val biChan: String) {
         DEFAULT("<-chan", "chan<-", "chan"),
-        UNICODE("← chan", "chan ←", "chan"),
-        LITERAL("chan recv", "chan send", "chan bi")
+        UNICODE("← chan", "→ chan", "⇄ chan"),
+        LITERAL("chan recv", "chan send", "chan bdir")
     }
 
     enum class ChanTypeBracketsStyle(val left: String, val right: String) {
@@ -88,7 +88,7 @@ class GolangIJSettings : PersistentStateComponent<GolangIJSettings.State> {
 
     companion object {
         @JvmStatic
-        fun getInstance(): GolangIJSettings =
-            ApplicationManager.getApplication().getService(GolangIJSettings::class.java)
+        fun getInstance(): Settings =
+            ApplicationManager.getApplication().getService(Settings::class.java)
     }
 }

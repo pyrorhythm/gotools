@@ -1,18 +1,19 @@
-package com.pyro.golangij
+package com.pyro.gotools.settings.inlayHints
 
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.util.ui.FormBuilder
+import com.pyro.gotools.settings.inlayHints.Settings
 import javax.swing.*
 
-class GolangIJInlayHintsConfigurable : Configurable {
-    private lateinit var chanStyleCombo: JComboBox<GolangIJSettings.ChanStyle>
-    private lateinit var chanTypeBracketsStyleCombo: JComboBox<GolangIJSettings.ChanTypeBracketsStyle>
-    private lateinit var ellipsisStyleCombo: JComboBox<GolangIJSettings.EllipsisStyle>
-    private lateinit var genericBracketCombo: JComboBox<GolangIJSettings.GenericBracketStyle>
-    private lateinit var pointerStyleCombo: JComboBox<GolangIJSettings.PointerStyle>
-    private lateinit var separatorStyleCombo: JComboBox<GolangIJSettings.SeparatorStyle>
-    private lateinit var funcLiteralStyleCombo: JComboBox<GolangIJSettings.FuncLiteralStyle>
+class Configurable : Configurable {
+    private lateinit var chanStyleCombo: JComboBox<Settings.ChanStyle>
+    private lateinit var chanTypeBracketsStyleCombo: JComboBox<Settings.ChanTypeBracketsStyle>
+    private lateinit var ellipsisStyleCombo: JComboBox<Settings.EllipsisStyle>
+    private lateinit var genericBracketCombo: JComboBox<Settings.GenericBracketStyle>
+    private lateinit var pointerStyleCombo: JComboBox<Settings.PointerStyle>
+    private lateinit var separatorStyleCombo: JComboBox<Settings.SeparatorStyle>
+    private lateinit var funcLiteralStyleCombo: JComboBox<Settings.FuncLiteralStyle>
     private lateinit var insertSpaceOnLeftToggle: JCheckBox
     private lateinit var renderTypeParamsToggle: JCheckBox
     private lateinit var renderTypeParamsConstraintsToggle: JCheckBox
@@ -21,77 +22,77 @@ class GolangIJInlayHintsConfigurable : Configurable {
     override fun getDisplayName(): String = "Inlay Hints"
 
     override fun createComponent(): JComponent {
-        chanStyleCombo = ComboBox(GolangIJSettings.ChanStyle.entries.toTypedArray()).apply {
+        chanStyleCombo = ComboBox(Settings.ChanStyle.entries.toTypedArray()).apply {
             renderer = enumRenderer {
                 when (it) {
-                    GolangIJSettings.ChanStyle.DEFAULT -> "Default (<-chan)"
-                    GolangIJSettings.ChanStyle.UNICODE -> "Unicode (← chan)"
-                    GolangIJSettings.ChanStyle.LITERAL -> "Literal (chan recv / chan send / chan bi)"
+                    Settings.ChanStyle.DEFAULT -> "Default (<-chan / chan<- / chan)"
+                    Settings.ChanStyle.UNICODE -> "Unicode (← chan / → chan / ⇄ chan)"
+                    Settings.ChanStyle.LITERAL -> "Literal (chan recv / chan send / chan bdir)"
                 }
             }
         }
 
-        ellipsisStyleCombo = ComboBox(GolangIJSettings.EllipsisStyle.entries.toTypedArray()).apply {
+        ellipsisStyleCombo = ComboBox(Settings.EllipsisStyle.entries.toTypedArray()).apply {
             renderer = enumRenderer {
                 when (it) {
-                    GolangIJSettings.EllipsisStyle.DEFAULT -> "Default (...)"
-                    GolangIJSettings.EllipsisStyle.UNICODE -> "Unicode (…)"
-                    GolangIJSettings.EllipsisStyle.UNICODE_MIDDLE -> "Unicode middle-aligned (⋯)"
-                    GolangIJSettings.EllipsisStyle.TILDE -> "Tilde (~)"
+                    Settings.EllipsisStyle.DEFAULT -> "Default (...)"
+                    Settings.EllipsisStyle.UNICODE -> "Unicode (…)"
+                    Settings.EllipsisStyle.UNICODE_MIDDLE -> "Unicode middle-aligned (⋯)"
+                    Settings.EllipsisStyle.TILDE -> "Tilde (~)"
                 }
             }
         }
 
-        genericBracketCombo = ComboBox(GolangIJSettings.GenericBracketStyle.entries.toTypedArray()).apply {
+        genericBracketCombo = ComboBox(Settings.GenericBracketStyle.entries.toTypedArray()).apply {
             renderer = enumRenderer {
                 when (it) {
-                    GolangIJSettings.GenericBracketStyle.DEFAULT -> "Default - [int]"
-                    GolangIJSettings.GenericBracketStyle.UNICODE_ANGLED -> "Unicode angled - ⟨int⟩"
-                    GolangIJSettings.GenericBracketStyle.ASCII_ANGLED -> "ASCII angled - <int>"
+                    Settings.GenericBracketStyle.DEFAULT -> "Default - [int]"
+                    Settings.GenericBracketStyle.UNICODE_ANGLED -> "Unicode angled - ⟨int⟩"
+                    Settings.GenericBracketStyle.ASCII_ANGLED -> "ASCII angled - <int>"
                 }
             }
         }
 
-        pointerStyleCombo = ComboBox(GolangIJSettings.PointerStyle.entries.toTypedArray()).apply {
+        pointerStyleCombo = ComboBox(Settings.PointerStyle.entries.toTypedArray()).apply {
             renderer = enumRenderer {
                 when (it) {
-                    GolangIJSettings.PointerStyle.DEFAULT -> "Default (*int)"
-                    GolangIJSettings.PointerStyle.CARET -> "Caret (^int)"
-                    GolangIJSettings.PointerStyle.AMPERSAND -> "Ampersand (&int)"
-                    GolangIJSettings.PointerStyle.PTR_OF -> "Literal (ptrOf int)"
+                    Settings.PointerStyle.DEFAULT -> "Default (*int)"
+                    Settings.PointerStyle.CARET -> "Caret (^int)"
+                    Settings.PointerStyle.AMPERSAND -> "Ampersand (&int)"
+                    Settings.PointerStyle.PTR_OF -> "Literal (ptrOf int)"
                 }
             }
         }
 
-        separatorStyleCombo = ComboBox(GolangIJSettings.SeparatorStyle.entries.toTypedArray()).apply {
+        separatorStyleCombo = ComboBox(Settings.SeparatorStyle.entries.toTypedArray()).apply {
             renderer = enumRenderer {
                 when (it) {
-                    GolangIJSettings.SeparatorStyle.DEFAULT -> "Default (a, b)"
-                    GolangIJSettings.SeparatorStyle.PIPE -> "Pipe (a | b)"
-                    GolangIJSettings.SeparatorStyle.SEMICOLON -> "Semicolon (a; b)"
+                    Settings.SeparatorStyle.DEFAULT -> "Default (a, b)"
+                    Settings.SeparatorStyle.PIPE -> "Pipe (a | b)"
+                    Settings.SeparatorStyle.SEMICOLON -> "Semicolon (a; b)"
                 }
             }
         }
 
-        funcLiteralStyleCombo = ComboBox(GolangIJSettings.FuncLiteralStyle.entries.toTypedArray()).apply {
+        funcLiteralStyleCombo = ComboBox(Settings.FuncLiteralStyle.entries.toTypedArray()).apply {
             renderer = enumRenderer {
                 when (it) {
-                    GolangIJSettings.FuncLiteralStyle.DEFAULT -> "Default ( func(int) -> float )"
-                    GolangIJSettings.FuncLiteralStyle.SCIENTIFIC -> "Scientific ( ƒ(int) -> float )"
-                    GolangIJSettings.FuncLiteralStyle.NO -> "No literal ( (int) -> float )"
+                    Settings.FuncLiteralStyle.DEFAULT -> "Default ( func(int) -> float )"
+                    Settings.FuncLiteralStyle.SCIENTIFIC -> "Scientific ( ƒ(int) -> float )"
+                    Settings.FuncLiteralStyle.NO -> "No literal ( (int) -> float )"
                 }
             }
         }
 
 
-        chanTypeBracketsStyleCombo = ComboBox(GolangIJSettings.ChanTypeBracketsStyle.entries.toTypedArray()).apply {
+        chanTypeBracketsStyleCombo = ComboBox(Settings.ChanTypeBracketsStyle.entries.toTypedArray()).apply {
             renderer = enumRenderer {
                 when (it) {
-                    GolangIJSettings.ChanTypeBracketsStyle.DEFAULT -> "Default ( chan int )"
-                    GolangIJSettings.ChanTypeBracketsStyle.ROUND -> "Round ( chan(int) )"
-                    GolangIJSettings.ChanTypeBracketsStyle.SQUARE -> "Squared ( chan[int] )"
-                    GolangIJSettings.ChanTypeBracketsStyle.UNICODE_ANGLED -> "Unicode angled ( chan⟨int⟩ )"
-                    GolangIJSettings.ChanTypeBracketsStyle.ASCII_ANGLED -> "ASCII angled ( chan<int> )"
+                    Settings.ChanTypeBracketsStyle.DEFAULT -> "Default ( chan int )"
+                    Settings.ChanTypeBracketsStyle.ROUND -> "Round ( chan(int) )"
+                    Settings.ChanTypeBracketsStyle.SQUARE -> "Squared ( chan[int] )"
+                    Settings.ChanTypeBracketsStyle.UNICODE_ANGLED -> "Unicode angled ( chan⟨int⟩ )"
+                    Settings.ChanTypeBracketsStyle.ASCII_ANGLED -> "ASCII angled ( chan<int> )"
                 }
             }
         }
@@ -130,7 +131,7 @@ class GolangIJInlayHintsConfigurable : Configurable {
     }
 
     override fun isModified(): Boolean {
-        val settings = GolangIJSettings.getInstance()
+        val settings = Settings.getInstance()
         return chanStyleCombo.selectedItem != settings.chanStyle
                 || ellipsisStyleCombo.selectedItem != settings.ellipsisStyle
                 || genericBracketCombo.selectedItem != settings.genericBracketStyle
@@ -145,14 +146,14 @@ class GolangIJInlayHintsConfigurable : Configurable {
     }
 
     override fun apply() {
-        val state = GolangIJSettings.getInstance().state
-        state.chanStyle = chanStyleCombo.selectedItem as GolangIJSettings.ChanStyle
-        state.ellipsisStyle = ellipsisStyleCombo.selectedItem as GolangIJSettings.EllipsisStyle
-        state.genericBracketStyle = genericBracketCombo.selectedItem as GolangIJSettings.GenericBracketStyle
-        state.pointerStyle = pointerStyleCombo.selectedItem as GolangIJSettings.PointerStyle
-        state.separatorStyle = separatorStyleCombo.selectedItem as GolangIJSettings.SeparatorStyle
-        state.chanTypeBracketsStyle = chanTypeBracketsStyleCombo.selectedItem as GolangIJSettings.ChanTypeBracketsStyle
-        state.funcLiteralStyle = funcLiteralStyleCombo.selectedItem as GolangIJSettings.FuncLiteralStyle
+        val state = Settings.getInstance().state
+        state.chanStyle = chanStyleCombo.selectedItem as Settings.ChanStyle
+        state.ellipsisStyle = ellipsisStyleCombo.selectedItem as Settings.EllipsisStyle
+        state.genericBracketStyle = genericBracketCombo.selectedItem as Settings.GenericBracketStyle
+        state.pointerStyle = pointerStyleCombo.selectedItem as Settings.PointerStyle
+        state.separatorStyle = separatorStyleCombo.selectedItem as Settings.SeparatorStyle
+        state.chanTypeBracketsStyle = chanTypeBracketsStyleCombo.selectedItem as Settings.ChanTypeBracketsStyle
+        state.funcLiteralStyle = funcLiteralStyleCombo.selectedItem as Settings.FuncLiteralStyle
         state.maxHintLength = maxHintLengthSpinner.value as Int
         state.insertSpaceOnLeft = insertSpaceOnLeftToggle.isSelected
         state.renderTypeParams = renderTypeParamsToggle.isSelected
@@ -160,7 +161,7 @@ class GolangIJInlayHintsConfigurable : Configurable {
     }
 
     override fun reset() {
-        val settings = GolangIJSettings.getInstance()
+        val settings = Settings.getInstance()
         chanStyleCombo.selectedItem = settings.chanStyle
         ellipsisStyleCombo.selectedItem = settings.ellipsisStyle
         genericBracketCombo.selectedItem = settings.genericBracketStyle

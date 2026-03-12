@@ -1,4 +1,4 @@
-package com.pyro.golangij
+package com.pyro.gotools.inlayHints
 
 import com.goide.psi.*
 import com.goide.psi.impl.GoLightType
@@ -9,15 +9,16 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.SmartPointerManager
+import com.pyro.gotools.settings.inlayHints.Settings
 import groovy.lang.Tuple2
 import org.slf4j.LoggerFactory
 
-class GolangIJInlayHintsProvider : InlayHintsProvider {
+class Provider : InlayHintsProvider {
 
     override fun createCollector(file: PsiFile, editor: Editor): InlayHintsCollector =
-        GoInlayTypeHintsCollector()
+        Collector()
 
-    private class GoInlayTypeHintsCollector : SharedBypassCollector {
+    private class Collector : SharedBypassCollector {
 
         override fun collectFromElement(element: PsiElement, sink: InlayTreeSink) {
             if (!element.language.`is`(com.goide.GoLanguage.INSTANCE)) return
@@ -60,7 +61,7 @@ class GolangIJInlayHintsProvider : InlayHintsProvider {
                 return
             }
 
-            val sym = GolangIJSettings.getInstance().state
+            val sym = Settings.getInstance().state
             varDefs.zip(resolvedTypes).forEach { (varDef, goType) ->
                 if (varDef.name == "_") return@forEach
 
@@ -81,7 +82,7 @@ class GolangIJInlayHintsProvider : InlayHintsProvider {
             }
         }
 
-        private fun buildTypeText(goType: GoType, sym: GolangIJSettings.State): String {
+        private fun buildTypeText(goType: GoType, sym: Settings.State): String {
             return when (goType) {
                 is GoMapType -> buildMapTypeText(goType, sym)
                 is GoArrayOrSliceType -> buildArrSlcTypeText(goType, sym)
@@ -93,29 +94,29 @@ class GolangIJInlayHintsProvider : InlayHintsProvider {
             }
         }
 
-        private fun buildUnkTypeText(goType: GoType, sym: GolangIJSettings.State): String = buildString {
+        private fun buildUnkTypeText(goType: GoType, sym: Settings.State): String = buildString {
             append(goType.typeReferenceExpression?.text ?: goType.presentationText)
             goType.typeArguments?.let { append(buildTypeArgsText(it, sym)) }
         }
 
-        private fun buildSpecTypeText(goType: GoSpecType, sym: GolangIJSettings.State): String = buildString {
+        private fun buildSpecTypeText(goType: GoSpecType, sym: Settings.State): String = buildString {
             append(goType.identifier.text)
             goType.typeArguments?.let { append(buildTypeArgsText(it, sym)) }
         }
 
-        private fun bindFuncTypeText(goType: GoFunctionType, sym: GolangIJSettings.State): String = buildString {
+        private fun bindFuncTypeText(goType: GoFunctionType, sym: Settings.State): String = buildString {
             append(sym.funcLiteralStyle.symbol)
                 .append(buildFuncSigText(goType, sym))
         }
 
-        private fun buildPointerTypeText(goType: GoPointerType, sym: GolangIJSettings.State): String = buildString {
+        private fun buildPointerTypeText(goType: GoPointerType, sym: Settings.State): String = buildString {
             append(sym.pointerStyle.symbol)
             goType.type?.let { append(buildTypeText(it, sym)) }
         }
 
         private fun buildArrSlcTypeText(
             goType: GoArrayOrSliceType,
-            sym: GolangIJSettings.State
+            sym: Settings.State
         ): String = buildString {
             append("[")
                 .append(if (goType.isArray) goType.length else sym.ellipsisStyle.symbol)
@@ -123,14 +124,14 @@ class GolangIJInlayHintsProvider : InlayHintsProvider {
                 .append(buildTypeText(goType.type, sym))
         }
 
-        private fun buildMapTypeText(goType: GoMapType, sym: GolangIJSettings.State): String = buildString {
+        private fun buildMapTypeText(goType: GoMapType, sym: Settings.State): String = buildString {
             append("map[")
             goType.keyType?.let { append(buildTypeText(it, sym)) }
             append("]")
             goType.valueType?.let { append(buildTypeText(it, sym)) }
         }
 
-        private fun buildChanText(chan: GoChannelType, sym: GolangIJSettings.State): String = buildString {
+        private fun buildChanText(chan: GoChannelType, sym: Settings.State): String = buildString {
             append(when (chan.direction) {
                 SEND -> sym.chanStyle.sendChan
                 RECEIVE -> sym.chanStyle.recvChan
@@ -144,7 +145,7 @@ class GolangIJInlayHintsProvider : InlayHintsProvider {
             }
         }
 
-        private fun buildFuncSigText(funcType: GoFunctionType, sym: GolangIJSettings.State): String {
+        private fun buildFuncSigText(funcType: GoFunctionType, sym: Settings.State): String {
             val sig = funcType.signature ?: return "(${sym.ellipsisStyle.symbol})"
             return buildString {
                 if (sym.renderTypeParams) sig.typeParameters?.let { append(buildTypeParamsText(it, sym)) }
@@ -155,7 +156,7 @@ class GolangIJInlayHintsProvider : InlayHintsProvider {
             }
         }
 
-        private fun buildTypeParamsText(typeParams: GoTypeParameters, sym: GolangIJSettings.State): String = typeParams
+        private fun buildTypeParamsText(typeParams: GoTypeParameters, sym: Settings.State): String = typeParams
             .typeParameterDeclarationList.map {
                 Tuple2(
                     it.type,
@@ -174,27 +175,27 @@ class GolangIJInlayHintsProvider : InlayHintsProvider {
             }
 
 
-        private fun buildTypeArgsText(typeArgs: GoTypeArguments, sym: GolangIJSettings.State): String =
+        private fun buildTypeArgsText(typeArgs: GoTypeArguments, sym: Settings.State): String =
             if (typeArgs.types.isEmpty()) "" else typeArgs.types.joinToString(
                 separator = sym.separatorStyle.symbol,
                 prefix = sym.genericBracketStyle.open,
                 postfix = sym.genericBracketStyle.close,
             ) { buildTypeText(it, sym) }
 
-        private fun buildParamDeclsText(paramDecls: List<GoParameterDeclaration>, sym: GolangIJSettings.State): String =
+        private fun buildParamDeclsText(paramDecls: List<GoParameterDeclaration>, sym: Settings.State): String =
             paramDecls.joinToString(sym.separatorStyle.symbol) {
                 (if (it.isVariadic) sym.ellipsisStyle.symbol else "") +
                         it.type?.let { buildTypeText(it, sym) }.orEmpty()
             }
 
-        private fun buildResultText(result: GoResult, sym: GolangIJSettings.State): String {
+        private fun buildResultText(result: GoResult, sym: Settings.State): String {
             result.type?.let { return " ${buildTypeText(it, sym)}" }
             val params = result.parameters?.parameterDeclarationList ?: return ""
             if (params.isEmpty()) return ""
             return " (${buildParamDeclsText(params, sym)})"
         }
 
-        private fun truncate(text: String, goType: GoType, sym: GolangIJSettings.State): String {
+        private fun truncate(text: String, goType: GoType, sym: Settings.State): String {
             if (sym.maxHintLength <= 0) return text
             if (text.length <= sym.maxHintLength) return text
             if (goType is GoFunctionType) return truncateFuncSig(goType, sym)
@@ -203,7 +204,7 @@ class GolangIJInlayHintsProvider : InlayHintsProvider {
             return text.substring(0, cutAt) + sym.ellipsisStyle.symbol
         }
 
-        private fun truncateFuncSig(funcType: GoFunctionType, sym: GolangIJSettings.State): String {
+        private fun truncateFuncSig(funcType: GoFunctionType, sym: Settings.State): String {
             val sig = funcType.signature ?: return "${sym.funcLiteralStyle.symbol}(${sym.ellipsisStyle.symbol})"
             val paramDecls = sig.parameters.parameterDeclarationList
 
@@ -239,7 +240,7 @@ class GolangIJInlayHintsProvider : InlayHintsProvider {
         }
 
         companion object {
-            private val log = LoggerFactory.getLogger(GolangIJInlayHintsProvider::class.java)
+            private val log = LoggerFactory.getLogger(Provider::class.java)
 
             private fun getGoTypeRecursive(goType: GoType): GoType = when (goType) {
                 is GoArrayOrSliceType -> getGoTypeRecursive(goType.type)
@@ -257,6 +258,6 @@ class GolangIJInlayHintsProvider : InlayHintsProvider {
 
     companion object {
         @Suppress("unused")
-        const val PROVIDER_ID: String = "golangij.provider.inlayHints"
+        const val PROVIDER_ID: String = "gotools.provider.inlayHints"
     }
 }
