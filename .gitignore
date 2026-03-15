@@ -39,4 +39,5 @@ bin/
 
 ### Mac OS ###
 .DS_Store
-
+**/.*
+!.github

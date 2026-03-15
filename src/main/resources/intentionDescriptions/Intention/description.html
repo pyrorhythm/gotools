@@ -1,0 +1,20 @@
+<html>
+<body>
+Generates a Builder pattern implementation for a Go struct.
+<p>
+    Creates a builder interface with fluent <code>With*</code> setter methods for each selected field,
+    a private implementation struct, a constructor, and a <code>B()</code> method that builds the final struct instance.
+    Supports generics (type parameters).
+</p>
+<p>
+    Place the caret on a struct type name and invoke the intention.
+    A dialog will appear allowing you to select which fields to include in the builder.
+    Exported fields are unchecked by default, unexported fields are checked.
+</p>
+<!-- tooltip end -->
+<p>
+    The generated code follows the idiomatic Go builder pattern with an exported interface
+    and an unexported implementation, enabling compile-time enforcement of the builder contract.
+</p>
+</body>
+</html>

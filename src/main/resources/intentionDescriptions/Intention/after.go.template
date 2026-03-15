@@ -1,0 +1,66 @@
+type Data map[string]interface{}
+
+type User struct {
+	ID               int `json:"id"`
+	somePrivateField string
+	possiblyPassword string
+	Name             string  `json:"name"`
+	Address          *string `json:"address"`
+	Extra            *Data   `json:"extra"`
+}
+
+type UserBuilder interface {
+	WithSomePrivateField(someprivatefield string) UserBuilder
+	WithPossiblyPassword(possiblypassword string) UserBuilder
+	WithName(name string) UserBuilder
+	WithAddress(address *string) UserBuilder
+	WithExtra(extra *Data) UserBuilder
+	B() *User
+}
+
+type userBuilder struct {
+	someprivatefield string
+	possiblypassword string
+	name             string
+	address          *string
+	extra            *Data
+}
+
+func NewUserBuilder() UserBuilder {
+	return &userBuilder{}
+}
+
+func (u *userBuilder) WithSomePrivateField(someprivatefield string) UserBuilder {
+	u.someprivatefield = someprivatefield
+	return u
+}
+
+func (u *userBuilder) WithPossiblyPassword(possiblypassword string) UserBuilder {
+	u.possiblypassword = possiblypassword
+	return u
+}
+
+func (u *userBuilder) WithName(name string) UserBuilder {
+	u.name = name
+	return u
+}
+
+func (u *userBuilder) WithAddress(address *string) UserBuilder {
+	u.address = address
+	return u
+}
+
+func (u *userBuilder) WithExtra(extra *Data) UserBuilder {
+	u.extra = extra
+	return u
+}
+
+func (u *userBuilder) B() *User {
+	return &User{
+		somePrivateField: u.someprivatefield,
+		possiblyPassword: u.possiblypassword,
+		Name:             u.name,
+		Address:          u.address,
+		Extra:            u.extra,
+	}
+}

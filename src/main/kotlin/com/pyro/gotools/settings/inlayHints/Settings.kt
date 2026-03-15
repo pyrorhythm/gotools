@@ -78,14 +78,6 @@ class Settings : PersistentStateComponent<Settings.State> {
         myState = state
     }
 
-    val chanStyle: ChanStyle get() = myState.chanStyle
-    val chanTypeBracketsStyle: ChanTypeBracketsStyle get() = myState.chanTypeBracketsStyle
-    val ellipsisStyle: EllipsisStyle get() = myState.ellipsisStyle
-    val genericBracketStyle: GenericBracketStyle get() = myState.genericBracketStyle
-    val pointerStyle: PointerStyle get() = myState.pointerStyle
-    val separatorStyle: SeparatorStyle get() = myState.separatorStyle
-    val funcLiteralStyle: FuncLiteralStyle get() = myState.funcLiteralStyle
-
     companion object {
         @JvmStatic
         fun getInstance(): Settings =

@@ -9,9 +9,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.SmartPointerManager
+import com.intellij.openapi.diagnostic.Logger
 import com.pyro.gotools.settings.inlayHints.Settings
-import groovy.lang.Tuple2
-import org.slf4j.LoggerFactory
 
 class Provider : InlayHintsProvider {
 
@@ -29,35 +28,35 @@ class Provider : InlayHintsProvider {
             when (element) {
                 is GoShortVarDeclaration -> {
                     varDefs = element.varDefinitionList
-                    resolvedTypes = resolveGoTypes(element.expressionList.stream())
+                    resolvedTypes = resolveGoTypes(element.expressionList)
                 }
 
                 is GoRangeClause -> {
                     varDefs = element.varDefinitionList
-                    resolvedTypes = resolveGoTypes(element.varDefinitionList.stream())
+                    resolvedTypes = resolveGoTypes(element.varDefinitionList)
                 }
 
                 is GoRecvStatement -> {
                     if (element.varDefinitionList.isEmpty()) return
                     varDefs = element.varDefinitionList
-                    resolvedTypes = resolveGoTypes(varDefs.stream())
+                    resolvedTypes = resolveGoTypes(varDefs)
                 }
 
                 is GoVarSpec -> {
                     if (element.type != null) return
                     varDefs = element.varDefinitionList
-                    resolvedTypes = resolveGoTypes(element.expressionList.stream())
+                    resolvedTypes = resolveGoTypes(element.expressionList)
                 }
 
                 is GoConstSpec -> {
                     if (element.type != null) return
                     varDefs = element.constDefinitionList
-                    resolvedTypes = resolveGoTypes(element.expressionList.stream())
+                    resolvedTypes = resolveGoTypes(element.expressionList)
                 }
             }
 
             if (resolvedTypes.size != varDefs.size) {
-                log.debug("Type count {} != defs count {} in: {}", resolvedTypes.size, varDefs.size, element.text)
+                log.debug("Type count ${resolvedTypes.size} != defs count ${varDefs.size} in: ${element.text}")
                 return
             }
 
@@ -157,10 +156,10 @@ class Provider : InlayHintsProvider {
         }
 
         private fun buildTypeParamsText(typeParams: GoTypeParameters, sym: Settings.State): String = typeParams
-            .typeParameterDeclarationList.map {
-                Tuple2(
-                    it.type,
-                    it.typeParamDefinitionList
+            .typeParameterDeclarationList.map { decl ->
+                Pair(
+                    decl.type,
+                    decl.typeParamDefinitionList
                         .filter { !it.name.isNullOrEmpty() }
                         .joinToString(", ") { it.name.toString() })
             }
@@ -168,10 +167,8 @@ class Provider : InlayHintsProvider {
                 separator = sym.separatorStyle.symbol,
                 prefix = sym.genericBracketStyle.open,
                 postfix = sym.genericBracketStyle.close,
-            ) { // join groups (X, Y, Z any; A, B, C comparable)
-                val typ = it.v1
-
-                it.v2 + if (typ != null && sym.renderTypeParamsConstraints) " " + buildTypeText(typ, sym) else ""
+            ) { (typ, names) ->
+                names + if (typ != null && sym.renderTypeParamsConstraints) " " + buildTypeText(typ, sym) else ""
             }
 
 
@@ -185,7 +182,7 @@ class Provider : InlayHintsProvider {
         private fun buildParamDeclsText(paramDecls: List<GoParameterDeclaration>, sym: Settings.State): String =
             paramDecls.joinToString(sym.separatorStyle.symbol) {
                 (if (it.isVariadic) sym.ellipsisStyle.symbol else "") +
-                        it.type?.let { buildTypeText(it, sym) }.orEmpty()
+                        it.type?.let { t -> buildTypeText(t, sym) }.orEmpty()
             }
 
         private fun buildResultText(result: GoResult, sym: Settings.State): String {
@@ -234,13 +231,13 @@ class Provider : InlayHintsProvider {
                     PsiPointerInlayActionNavigationHandler.HANDLER_ID,
                 )
             } catch (e: Exception) {
-                log.debug("Could not create navigation for type: {}", goType.text, e)
+                log.debug("Could not create navigation for type: ${goType.text}", e)
                 null
             }
         }
 
         companion object {
-            private val log = LoggerFactory.getLogger(Provider::class.java)
+            private val log = Logger.getInstance(Provider::class.java)
 
             private fun getGoTypeRecursive(goType: GoType): GoType = when (goType) {
                 is GoArrayOrSliceType -> getGoTypeRecursive(goType.type)
@@ -249,8 +246,8 @@ class Provider : InlayHintsProvider {
                 else -> goType
             }
 
-            private fun resolveGoTypes(stream: java.util.stream.Stream<out GoTypeOwner>): List<GoType> =
-                stream.toList().mapNotNull { it.getGoType(null) }.flatMap { goType ->
+            private fun resolveGoTypes(elements: List<GoTypeOwner>): List<GoType> =
+                elements.mapNotNull { it.getGoType(null) }.flatMap { goType ->
                     if (goType is GoLightType.LightTypeList) goType.typeList else listOf(goType)
                 }
         }

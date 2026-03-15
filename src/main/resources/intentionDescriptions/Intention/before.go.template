@@ -1,0 +1,11 @@
+type Data map[string]interface{}
+
+type User struct {
+	ID               int `json:"id"`
+	somePrivateField string
+	possiblyPassword string
+	Name             string  `json:"name"`
+	Address          *string `json:"address"`
+	Extra            *Data   `json:"extra"`
+}
+

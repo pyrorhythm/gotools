@@ -2,8 +2,8 @@ package com.pyro.gotools.settings.inlayHints
 
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.ui.ComboBox
-import com.intellij.util.ui.FormBuilder
-import com.pyro.gotools.settings.inlayHints.Settings
+import com.intellij.ui.dsl.builder.panel
+import com.intellij.ui.layout.selected
 import javax.swing.*
 
 class Configurable : Configurable {
@@ -106,43 +106,52 @@ class Configurable : Configurable {
         renderTypeParamsToggle = JCheckBox()
         renderTypeParamsConstraintsToggle = JCheckBox()
 
-        renderTypeParamsConstraintsToggle.isEnabled = renderTypeParamsToggle.isSelected
-        renderTypeParamsToggle.addActionListener {
-            renderTypeParamsConstraintsToggle.isEnabled = renderTypeParamsToggle.isSelected
-            if (!renderTypeParamsToggle.isSelected) renderTypeParamsConstraintsToggle.isSelected = false
+        return panel {
+            row("Max hint length (0 = unlimited):") {
+                cell(maxHintLengthSpinner)
+            }
+            group("Hint Markup") {
+                row("Insert one space on left for each hint") {
+                    cell(insertSpaceOnLeftToggle)
+                }
+                row("Render type parameters") {
+                    cell(renderTypeParamsToggle)
+                }
+                indent {
+                    row("Render constraints") {
+                        cell(renderTypeParamsConstraintsToggle)
+                    }
+                }.enabledIf(renderTypeParamsToggle.selected)
+            }
+            group("Hint Style") {
+                group("Channel") {
+                    row("Arrows:") { cell(chanStyleCombo) }
+                    row("Type brackets:") { cell(chanTypeBracketsStyleCombo) }
+                }
+                group("Literals") {
+                    row("Variadic ellipsis:") { cell(ellipsisStyleCombo) }
+                    row("Generic brackets:") { cell(genericBracketCombo) }
+                    row("Pointer prefix:") { cell(pointerStyleCombo) }
+                    row("Type separator:") { cell(separatorStyleCombo) }
+                    row("Function literal:") { cell(funcLiteralStyleCombo) }
+                }
+            }
         }
-
-        return FormBuilder.createFormBuilder()
-            .addLabeledComponent("Max hint length (0 = unlimited)", maxHintLengthSpinner)
-            .addSeparator()
-            .addLabeledComponent("Insert one space on left for each hint", insertSpaceOnLeftToggle)
-            .addLabeledComponent("Render type parameters", renderTypeParamsToggle)
-            .addLabeledComponent("Also render their constraints", renderTypeParamsConstraintsToggle)
-            .addSeparator()
-            .addLabeledComponent("Channel arrows:", chanStyleCombo)
-            .addLabeledComponent("Channel type brackets:", chanTypeBracketsStyleCombo)
-            .addLabeledComponent("Variadic ellipsis:", ellipsisStyleCombo)
-            .addLabeledComponent("Generic brackets:", genericBracketCombo)
-            .addLabeledComponent("Pointer prefix:", pointerStyleCombo)
-            .addLabeledComponent("Type separator:", separatorStyleCombo)
-            .addLabeledComponent("Function literal:", funcLiteralStyleCombo)
-            .addComponentFillVertically(JPanel(), 0)
-            .panel
     }
 
     override fun isModified(): Boolean {
-        val settings = Settings.getInstance()
-        return chanStyleCombo.selectedItem != settings.chanStyle
-                || ellipsisStyleCombo.selectedItem != settings.ellipsisStyle
-                || genericBracketCombo.selectedItem != settings.genericBracketStyle
-                || pointerStyleCombo.selectedItem != settings.pointerStyle
-                || separatorStyleCombo.selectedItem != settings.separatorStyle
-                || maxHintLengthSpinner.value != settings.state.maxHintLength
-                || funcLiteralStyleCombo.selectedItem != settings.funcLiteralStyle
-                || chanTypeBracketsStyleCombo.selectedItem != settings.chanTypeBracketsStyle
-                || insertSpaceOnLeftToggle.isSelected != settings.state.insertSpaceOnLeft
-                || renderTypeParamsToggle.isSelected != settings.state.renderTypeParams
-                || renderTypeParamsConstraintsToggle.isSelected != settings.state.renderTypeParamsConstraints
+        val state = Settings.getInstance().state
+        return chanStyleCombo.selectedItem != state.chanStyle
+                || ellipsisStyleCombo.selectedItem != state.ellipsisStyle
+                || genericBracketCombo.selectedItem != state.genericBracketStyle
+                || pointerStyleCombo.selectedItem != state.pointerStyle
+                || separatorStyleCombo.selectedItem != state.separatorStyle
+                || maxHintLengthSpinner.value != state.maxHintLength
+                || funcLiteralStyleCombo.selectedItem != state.funcLiteralStyle
+                || chanTypeBracketsStyleCombo.selectedItem != state.chanTypeBracketsStyle
+                || insertSpaceOnLeftToggle.isSelected != state.insertSpaceOnLeft
+                || renderTypeParamsToggle.isSelected != state.renderTypeParams
+                || renderTypeParamsConstraintsToggle.isSelected != state.renderTypeParamsConstraints
     }
 
     override fun apply() {
@@ -161,18 +170,18 @@ class Configurable : Configurable {
     }
 
     override fun reset() {
-        val settings = Settings.getInstance()
-        chanStyleCombo.selectedItem = settings.chanStyle
-        ellipsisStyleCombo.selectedItem = settings.ellipsisStyle
-        genericBracketCombo.selectedItem = settings.genericBracketStyle
-        pointerStyleCombo.selectedItem = settings.pointerStyle
-        separatorStyleCombo.selectedItem = settings.separatorStyle
-        chanTypeBracketsStyleCombo.selectedItem = settings.chanTypeBracketsStyle
-        funcLiteralStyleCombo.selectedItem = settings.funcLiteralStyle
-        maxHintLengthSpinner.value = settings.state.maxHintLength
-        insertSpaceOnLeftToggle.setSelected(settings.state.insertSpaceOnLeft)
-        renderTypeParamsToggle.setSelected(settings.state.renderTypeParams)
-        renderTypeParamsConstraintsToggle.setSelected(settings.state.renderTypeParamsConstraints)
+        val state = Settings.getInstance().state
+        chanStyleCombo.selectedItem = state.chanStyle
+        ellipsisStyleCombo.selectedItem = state.ellipsisStyle
+        genericBracketCombo.selectedItem = state.genericBracketStyle
+        pointerStyleCombo.selectedItem = state.pointerStyle
+        separatorStyleCombo.selectedItem = state.separatorStyle
+        chanTypeBracketsStyleCombo.selectedItem = state.chanTypeBracketsStyle
+        funcLiteralStyleCombo.selectedItem = state.funcLiteralStyle
+        maxHintLengthSpinner.value = state.maxHintLength
+        insertSpaceOnLeftToggle.isSelected = state.insertSpaceOnLeft
+        renderTypeParamsToggle.isSelected = state.renderTypeParams
+        renderTypeParamsConstraintsToggle.isSelected = state.renderTypeParamsConstraints
     }
 
 }

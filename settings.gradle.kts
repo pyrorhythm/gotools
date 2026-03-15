@@ -1,1 +1,1 @@
-rootProject.name = "gotools"
+rootProject.name = "GoTools"

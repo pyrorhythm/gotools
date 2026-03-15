@@ -13,7 +13,11 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-    Various Golang tools and features, including wide and configurable inlay type hints.
+    Productivity tools for Go development in GoLand/IntelliJ:
+    <ul>
+        <li><b>Configurable Inlay Type Hints</b> — rich type hints with customizable styles for pointers, channels, generics, function literals, and more. Control max length, bracket style, separators, and Unicode symbols.</li>
+        <li><b>Builder Pattern Generator</b> — generates a fluent Builder pattern (interface + implementation) for any Go struct, with field selection dialog and generics support.</li>
+    </ul>
   ]]></description>
 
     <resource-bundle>messages.Bundle</resource-bundle>
@@ -40,5 +44,11 @@
                                  instance="com.pyro.gotools.settings.inlayHints.Configurable"
                                  id="com.pyro.gotools.settings.inlayHints"
                                  displayName="Inlay Hints"/>
+        <intentionAction>
+            <language>go</language>
+            <className>com.pyro.gotools.codeActions.builderPattern.Intention</className>
+            <category>Go</category>
+        </intentionAction>
+
     </extensions>
 </idea-plugin>

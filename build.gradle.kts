@@ -1,13 +1,15 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.changelog.Changelog
 
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "2.3.0"
-    id("org.jetbrains.intellij.platform") version "2.12.0"
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.intelliJPlatform)
+    alias(libs.plugins.changelog)
 }
 
-group = "com.pyro"
-version = "0.0.1-beta1"
+group = providers.gradleProperty("pluginGroup").get()
+version = providers.gradleProperty("pluginVersion").get()
 
 repositories {
     mavenCentral()
@@ -16,29 +18,35 @@ repositories {
     }
 }
 
-// Configure Gradle IntelliJ Plugin
-// Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 dependencies {
     intellijPlatform {
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
-        // Add necessary plugin dependencies for compilation here, example:
         goland("2025.3.1")
         bundledPlugin("org.jetbrains.plugins.go")
     }
-
-    implementation("org.apache.logging.log4j:log4j-api:2.25.3")
-    implementation("org.apache.logging.log4j:log4j-core:2.25.3")
 }
 
 intellijPlatform {
     pluginConfiguration {
+        name = providers.gradleProperty("pluginName")
+        version = providers.gradleProperty("pluginVersion")
+
         ideaVersion {
             sinceBuild = "253"
         }
 
-        changeNotes = """
-        WIP
-    """.trimIndent()
+        val changelog = project.changelog
+
+        changeNotes = providers.gradleProperty("pluginVersion").map { pluginVersion ->
+            with(changelog) {
+                renderItem(
+                    (getOrNull(pluginVersion) ?: getUnreleased())
+                        .withHeader(false)
+                        .withEmptySections(false),
+                    Changelog.OutputType.HTML,
+                )
+            }
+        }
     }
 
     publishing {
@@ -47,7 +55,17 @@ intellijPlatform {
 }
 
 tasks {
-    // Set the JVM compatibility versions
+    buildSearchableOptions {
+        enabled = false
+    }
+
+    runIde {
+        autoReload.set(true)
+        jvmArgs(
+            "-Didea.plugins.disabled=com.intellij.fullLine"
+        )
+    }
+
     withType<JavaCompile> {
         sourceCompatibility = "21"
         targetCompatibility = "21"
